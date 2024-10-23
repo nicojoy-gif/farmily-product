@@ -94,7 +94,7 @@ export default function CategoryProductsPage({ params }: CategoryProductsPagePro
           />
         </div>
 
-        <div>
+        <div className='hidden md:flex'>
           <label className="mr-2">Show Favorites:</label>
           <input
             type="checkbox"
@@ -115,7 +115,7 @@ export default function CategoryProductsPage({ params }: CategoryProductsPagePro
           {category}
         </h1>
         </div>
-        <div className="grid lg:grid-cols-3 grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
               <CategoryCard

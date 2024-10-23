@@ -1,3 +1,4 @@
+// components/ProductDetails/ProductDetails.tsx
 'use client';
 import { fetchProductById, productSelector } from '@/features/redux/reducers/productSlice';
 import { AppDispatch } from '@/features/redux/store';
@@ -5,8 +6,12 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { use } from 'react'; // Import use for unwrapping params
 import { Navbar } from '@/features/header';
-import { FaMinus, FaPlus } from 'react-icons/fa';
-// Import any required components or styles
+import ProductInfo from '@/features/product/productInfo';
+import QuantityControl from '@/features/product/quantityControl';
+import SpecialRequest from '@/features/product/specialReq';
+import { addToCart } from '@/features/redux/reducers/cartSlice';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 interface ProductDetailsProps {
   params: Promise<{
@@ -17,7 +22,7 @@ interface ProductDetailsProps {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ params }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { product, status, error } = useSelector(productSelector);
-
+const router = useRouter()
   // Unwrap the params using React.use()
   const { id: productIdString } = use(params); // Unwrap to get productId
   const productId = parseInt(productIdString, 10); // Convert string to number
@@ -44,61 +49,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ params }) => {
   // Handler for adding to cart
   const handleAddToCart = () => {
     console.log(`Adding to cart: ${product.title}, Quantity: ${quantity}, Special Request: ${specialRequest}`);
-    // Add logic to dispatch add to cart action
+    dispatch(addToCart({ product, quantity })); // Dispatch addToCart
+    toast.success(`${product.title} has been added to your cart!`); // Notify user
+    router.push('/cart'); // Navigate to cart page
   };
-
   return (
     <div>
       <Navbar />
       <div className='max-w-3xl my-5 px-5 mx-auto'>
-        <div className='product-background rounded-xl lg:w-1/2 lg:h-1/2 w-full h-full p-6 flex-col flex'>
-          <div className='product flex justify-center items-center'>
-            <div>
-              <img src={product.image} className='h-48 w-48' alt={product.title} />
-            </div>
-          </div>
-          <div className='flex flex-col justify-start items-start py-2'>
-            <h2 className='capitalize text-dark font-bold text-lg'>{product.category}</h2>
-            <p className='text-surface-600 font-medium'>{product.title}</p>
-          </div>
-        </div>
-        <div className='p-4'>
-          <h2 className='capitalize text-dark font-bold text-xl'>{product.title}</h2>
-          <p className='py-2 text-primary'>{product.description}</p>
-          <p className='text-dark-400 font-medium'>Starting Price: ${product.price} (5pcs)</p>
-          
-          {/* Quantity Control */}
-          <div className='flex items-center gap-12'>
-          <div className='flex items-center rounded-full bg-secondary mt-4'>
-            <button 
-              onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)} 
-              className='text-new  p-3 rounded'><FaMinus /></button>
-            <span className=' text-new font-bold text-xl mx-2'>{quantity}</span>
-            <button 
-              onClick={() => setQuantity(quantity + 1)} 
-              className='text-new   p-3 rounded'><FaPlus  /></button>
-          </div>
-            {/* Add to Cart Button */}
-            <button 
+        <ProductInfo 
+          title={product.title} 
+          category={product.category} 
+          description={product.description} 
+          price={product.price} 
+          image={product.image} 
+        />
+        <div className='p-4 flex items-center gap-12'>
+          <QuantityControl quantity={quantity} setQuantity={setQuantity} />
+          <button 
             onClick={handleAddToCart} 
-            className='bg-primary text-white rounded-full py-2 px-8 mt-4'>
+            className='bg-primary text-white text-nowrap rounded-full py-2 px-8 mt-4'>
             Add to Cart
           </button>
           </div>
-          
-          {/* Special Request Textarea */}
-          <div className='mt-4'>
-            <label htmlFor='specialRequest' className='block text-surface-800 text-lg font-bold mb-1'>Special Request <span className='text-surface-600 text-md'>(optional)</span></label>
-            <textarea 
-              id='specialRequest' 
-              value={specialRequest} 
-              onChange={(e) => setSpecialRequest(e.target.value)} 
-              className='border resize-none bg-surface-200 rounded p-2 w-full' 
-              rows={6} 
-              placeholder='Any special instructions?' />
-          </div>
-
-        
+          <div>
+          <SpecialRequest
+            specialRequest={specialRequest} 
+            setSpecialRequest={setSpecialRequest} 
+          />
         </div>
 
         {/* Recommended Products Section */}
