@@ -2,6 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Create an async thunk to fetch a product by its ID
+interface ProductState {
+ 
+  product: Record<string, Array<any>>; 
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+}
+
 export const fetchProductById = createAsyncThunk(
   'product/fetchProductById',
   async (id: number) => {  // Specify the ID type
@@ -11,7 +18,7 @@ export const fetchProductById = createAsyncThunk(
 );
 
 // Define the initial state for the product slice
-const initialState = {
+const initialState: ProductState = {
   product: {},  // To store the fetched product details
   status: 'idle',  // Status of the async requests
   error: null,  // To store any error message

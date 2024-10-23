@@ -64,7 +64,7 @@ const router = useRouter()
           price={product.price} 
           image={product.image} 
         />
-        <div className='p-4 flex items-center gap-12'>
+        <div className='py-2 flex items-center lg:gap-12 gap-6'>
           <QuantityControl quantity={quantity} setQuantity={setQuantity} />
           <button 
             onClick={handleAddToCart} 
@@ -81,7 +81,7 @@ const router = useRouter()
 
         {/* Recommended Products Section */}
         <div className='recommended-products mt-8'>
-          <h3 className='text-xl font-bold'>Recommended Products</h3>
+          <h3 className='text-xl py-2 font-bold'>Recommended Products</h3>
           {/* Here, you would map through your recommended products */}
           <div className='grid grid-cols-2 gap-4'>
             {/* Example of recommended products (you should replace this with real data) */}

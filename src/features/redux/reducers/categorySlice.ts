@@ -46,7 +46,6 @@ export const fetchCategories = createAsyncThunk(
 );
 
 
-// Create an async thunk to fetch products for a specific category
 export const fetchProductsByCategory = createAsyncThunk<
   { category: string; products: any[] },
   string
@@ -66,7 +65,6 @@ export const fetchProductsByCategory = createAsyncThunk<
   }
 );
 
-// Define the category slice
 const categorySlice = createSlice({
   name: 'category',
   initialState,
@@ -99,8 +97,6 @@ const categorySlice = createSlice({
   },
 });
 
-// Selector to access the categories and products state
-export const categorySelector = (state: { category: CategoryState }) => state.category;
 
-// Export the reducer
+export const categorySelector = (state: { category: CategoryState }) => state.category;
 export const categoryReducer = categorySlice.reducer;

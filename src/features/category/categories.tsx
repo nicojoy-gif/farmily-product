@@ -1,14 +1,11 @@
-import Image from 'next/image';
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import React from "react";
+import { useRouter } from "next/navigation";
 
-// Data type for items
 type CategoryItem = {
   name: string;
   image: string;
 };
-
-// Props type for the component
 type CategorySectionProps = {
   items: CategoryItem[];
 };
@@ -17,21 +14,19 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ items }) => {
   const router = useRouter();
 
   const handleCategoryClick = (categoryName: string) => {
-    // Navigate to the products page of the clicked category
     router.push(`/category/${categoryName}`);
   };
 
   return (
     <div className="max-w-3xl mx-auto my-8 p-4">
-      {/* Category Items */}
       <div className="space-y-6">
         {items.map((item, index) => (
-          <div 
-            key={index} 
-            className="flex justify-between items-center border-b pb-4 cursor-pointer" 
-            onClick={() => handleCategoryClick(item.name)} // Add click handler
+          <div
+            key={index}
+            className="flex justify-between items-center border-b pb-4 cursor-pointer"
+            onClick={() => handleCategoryClick(item.name)}
           >
-            <div className="flex justify-between w-24 h-24 items-center border shadow-[#00000040] rounded-full border-lightgray">
+            <div className="flex justify-between lg:w-24 lg:h-24 w-16 h-16 items-center border shadow-[#00000040] rounded-full border-lightgray">
               <Image
                 src={item.image}
                 alt={item.name}

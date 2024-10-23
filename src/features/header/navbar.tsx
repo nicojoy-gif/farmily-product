@@ -1,8 +1,8 @@
-// components/Navbar.tsx
 "use client";
+import Link from "next/link";
 import { useState } from "react";
-import { FaSearch, FaShoppingCart, FaBox, FaBars } from "react-icons/fa";
-import { HiMenu, HiSearch } from "react-icons/hi"; // Using HiMenu for a thinner hamburger icon
+import { FaBox, FaBars } from "react-icons/fa";
+import { HiMenu, HiSearch } from "react-icons/hi";
 
 export const Navbar = () => {
   const [searchVisible, setSearchVisible] = useState(false);
@@ -21,10 +21,11 @@ export const Navbar = () => {
         </div>
 
         <div className="flex space-x-6 items-center">
-          <div className="flex items-center">
-            <img src="/assets/logo.svg" alt="Logo" className="h-8" />
-          </div>
-
+          <Link href="/">
+            <div className="flex items-center">
+              <img src="/assets/logo.svg" alt="Logo" className="h-8" />
+            </div>
+          </Link>
           <div className="relative">
             <button onClick={toggleSearch} className="ml-4">
               <HiSearch />
@@ -37,10 +38,11 @@ export const Navbar = () => {
               />
             )}
           </div>
-
-          <button className="ml-4">
-            <FaBox />
-          </button>
+          <Link href="/cart">
+            <button className="ml-4">
+              <FaBox />
+            </button>
+          </Link>
 
           <div className="relative ml-4">
             <div className="flex items-center justify-center w-7 h-7 bg-primary border border-white rounded-full">
