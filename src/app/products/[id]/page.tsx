@@ -1,35 +1,38 @@
-// components/ProductDetails/ProductDetails.tsx
-'use client';
-import { fetchProductById, productSelector } from '@/features/redux/reducers/productSlice';
-import { AppDispatch } from '@/features/redux/store';
-import React, { useEffect, useState } from 'react';
+'use client'
+import React, { use, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { use } from 'react'; // Import use for unwrapping params
+import { useRouter } from 'next/navigation';
+import { fetchProductById, productSelector } from '@/features/redux/reducers/productSlice';
+import { fetchProductsByCategory, categorySelector } from '@/features/redux/reducers/categorySlice';
+import { addToCart } from '@/features/redux/reducers/cartSlice';
+import { AppDispatch } from '@/features/redux/store';
 import { Navbar } from '@/features/header';
 import ProductInfo from '@/features/product/productInfo';
 import QuantityControl from '@/features/product/quantityControl';
 import SpecialRequest from '@/features/product/specialReq';
-import { addToCart } from '@/features/redux/reducers/cartSlice';
-import { useRouter } from 'next/navigation';
+import { CategoryCard } from '@/features/category';
 import { toast } from 'react-toastify';
 
 interface ProductDetailsProps {
   params: Promise<{
-    id: string; // Ensure this matches the dynamic segment in your URL
+    id: string;
   }>;
 }
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ params }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const { product, status, error } = useSelector(productSelector);
-const router = useRouter()
-  // Unwrap the params using React.use()
-  const { id: productIdString } = use(params); // Unwrap to get productId
-  const productId = parseInt(productIdString, 10); // Convert string to number
+  const { products: categoryProducts, status: categoryStatus } = useSelector(categorySelector);
 
-  // State for quantity and special request
-  const [quantity, setQuantity] = useState(1); // Default quantity
-  const [specialRequest, setSpecialRequest] = useState(''); // For special requests
+  const { id: productIdString } = use(params);
+  const productId = parseInt(productIdString, 10);
+
+  const [quantity, setQuantity] = useState(1);
+  const [specialRequest, setSpecialRequest] = useState('');
+
+  // Ref for the auto-scroll container
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isNaN(productId)) {
@@ -39,58 +42,92 @@ const router = useRouter()
     }
   }, [dispatch, productId]);
 
-  if (status === 'loading') {
+  useEffect(() => {
+    if (product?.category) {
+      dispatch(fetchProductsByCategory(product.category));
+    }
+  }, [dispatch, product?.category]);
+
+  // Automatically scroll the container horizontally
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const scrollStep = 1; // Adjust the number of pixels to scroll each step
+    const scrollInterval = 20; // Time (ms) between scroll steps
+    const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth; // Calculate max scroll
+
+    const intervalId = setInterval(() => {
+      if (scrollContainer.scrollLeft >= maxScrollLeft) {
+        // If reached the end, reset to the start
+        scrollContainer.scrollLeft = 0;
+      } else {
+        // Scroll by the defined step
+        scrollContainer.scrollLeft += scrollStep;
+      }
+    }, scrollInterval);
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [categoryProducts]);
+
+  if (status === 'loading' || categoryStatus === 'loading') {
     return <p>Loading product details...</p>;
   }
-  if (status === 'failed') {
+  if (status === 'failed' || categoryStatus === 'failed') {
     return <p>Error: {error}</p>;
   }
 
-  // Handler for adding to cart
+  const recommendedProducts = categoryProducts[product.category]?.filter(p => p.id !== productId).slice(0, 4) || [];
+
   const handleAddToCart = () => {
-    console.log(`Adding to cart: ${product.title}, Quantity: ${quantity}, Special Request: ${specialRequest}`);
-    dispatch(addToCart({ product, quantity })); // Dispatch addToCart
-    toast.success(`${product.title} has been added to your cart!`); // Notify user
-    router.push('/cart'); // Navigate to cart page
+    dispatch(addToCart({ product, quantity }));
+    toast.success(`${product.title} has been added to your cart!`);
+    router.push('/cart');
   };
+
   return (
     <div>
       <Navbar />
       <div className='max-w-3xl my-5 px-5 mx-auto'>
-        <ProductInfo 
-          title={product.title} 
-          category={product.category} 
-          description={product.description} 
-          price={product.price} 
-          image={product.image} 
+        <ProductInfo
+          title={product.title}
+          category={product.category}
+          description={product.description}
+          price={product.price}
+          image={product.image}
         />
         <div className='py-2 flex items-center lg:gap-12 gap-6'>
           <QuantityControl quantity={quantity} setQuantity={setQuantity} />
-          <button 
-            onClick={handleAddToCart} 
-            className='bg-primary text-white text-nowrap rounded-full py-2 px-8 mt-4'>
+          <button onClick={handleAddToCart} className='bg-primary text-white text-nowrap rounded-full py-2 px-8 mt-4'>
             Add to Cart
           </button>
-          </div>
-          <div>
-          <SpecialRequest
-            specialRequest={specialRequest} 
-            setSpecialRequest={setSpecialRequest} 
-          />
+        </div>
+        <div>
+          <SpecialRequest specialRequest={specialRequest} setSpecialRequest={setSpecialRequest} />
         </div>
 
         {/* Recommended Products Section */}
         <div className='recommended-products mt-8'>
           <h3 className='text-xl py-2 font-bold'>Recommended Products</h3>
-          {/* Here, you would map through your recommended products */}
-          <div className='grid grid-cols-2 gap-4'>
-            {/* Example of recommended products (you should replace this with real data) */}
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className='border p-4 rounded'>
-                <h4 className='font-semibold'>Recommended Product {item}</h4>
-                <p>Product details go here.</p>
-              </div>
-            ))}
+          <div
+            ref={scrollContainerRef}
+            className='auto-scroll grid grid-cols-2 gap-4 lg:grid-cols-2 sm:grid-cols-1'
+     // Ensure items are in one line for horizontal scrolling
+          >
+            {recommendedProducts.length > 0 ? (
+              recommendedProducts.map(recommendedProduct => (
+                <CategoryCard
+                  key={recommendedProduct.id}
+                  id={recommendedProduct.id}
+                  title={recommendedProduct.title}
+                  image={recommendedProduct.image}
+                  price={recommendedProduct.price}
+                  onClick={() => router.push(`/products/${recommendedProduct.id}`)}
+                />
+              ))
+            ) : (
+              <p>No recommended products available.</p>
+            )}
           </div>
         </div>
       </div>

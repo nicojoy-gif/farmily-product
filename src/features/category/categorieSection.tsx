@@ -1,24 +1,25 @@
-'use client'
+'use client';
 import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/hooks';
 import { fetchCategories, categorySelector } from '../redux/reducers/categorySlice';
 import { FaIcons } from 'react-icons/fa';
 import { CategorySection } from './categories';
 
-export default function CategoryPage() {
+interface CategoryPageProps {
+  searchTerm: string;
+}
+
+export default function CategoryPage({ searchTerm }: CategoryPageProps) {
   const dispatch = useAppDispatch();
   const { categories, status, error } = useAppSelector(categorySelector);
 
   useEffect(() => {
-    console.log('Dispatching fetchCategories...');
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (status === 'loading') console.log('Categories are loading...');
-    if (status === 'succeeded') console.log('Categories fetched successfully:', categories);
-    if (status === 'failed') console.error('Failed to fetch categories:', error);
-  }, [status, categories, error]);
+  const filteredCategories = categories.filter((category: { name: string }) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-10 mt-4 mx-4">
@@ -27,11 +28,10 @@ export default function CategoryPage() {
         <div><FaIcons /></div>
       </div>
 
-      {/* Display fetched categories */}
       {status === 'loading' && <p>Loading categories...</p>}
       {status === 'failed' && <p>Error: {error}</p>}
       {status === 'succeeded' && (
-        <CategorySection items={categories} />
+        <CategorySection items={filteredCategories} />
       )}
     </div>
   );

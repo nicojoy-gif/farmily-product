@@ -30,13 +30,13 @@ export const Navbar = () => {
             <button onClick={toggleSearch} className="ml-4">
               <HiSearch />
             </button>
-            {searchVisible && (
+            {/* {searchVisible && (
               <input
                 type="text"
                 placeholder="Search..."
                 className="absolute mt-12 right-0 p-2 border border-gray-300 rounded-md"
               />
-            )}
+            )} */}
           </div>
           <Link href="/cart">
             <button className="ml-4">

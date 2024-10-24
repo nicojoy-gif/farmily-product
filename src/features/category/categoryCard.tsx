@@ -25,7 +25,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   return (
     <div
       key={id}
-      className="border  border-[rgba(128, 128, 128, 0.3)] p-4 rounded-2xl cursor-pointer shadow-custom-light relative" // Adding relative positioning
+      className="border min-w-80 border-[rgba(128, 128, 128, 0.3)] p-4 rounded-2xl cursor-pointer shadow-custom-light relative" // Adding relative positioning
       onClick={() => onClick(id)}
     >
       <div className="flex my-3 justify-center items-center">

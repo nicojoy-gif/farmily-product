@@ -35,7 +35,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ items }) => {
                 className="rounded-full"
               />
             </div>
-            <div className="ml-10 text-lg font-medium">{item.name}</div>
+            <div className="ml-10 text-lg capitalize font-medium">{item.name}</div>
           </div>
         ))}
       </div>
